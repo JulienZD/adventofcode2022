@@ -1,31 +1,43 @@
-import { readFile } from '../lib/readFile.ts';
+import type { Solver } from '../aoc.d.ts';
 
-const input = await readFile('./input.txt');
+const getElves = (items: string[]) => {
+  const elves = [];
 
-const elves = [];
+  let elfsTotalCalories = 0;
 
-const items = input.split('\n');
+  for (let i = 0; i < items.length; i++) {
+    const current = items[i];
+    const next = items[i + 1];
 
-let elfsTotalCalories = 0;
+    if (current === '' || next === undefined) {
+      elves.push(elfsTotalCalories);
+      elfsTotalCalories = 0;
+    }
 
-for (let i = 0; i < items.length; i++) {
-  const current = items[i];
-  const next = items[i + 1];
-
-  if (current === '' || next === undefined) {
-    elves.push(elfsTotalCalories);
-    elfsTotalCalories = 0;
+    elfsTotalCalories += +current;
   }
 
-  elfsTotalCalories += +current;
-}
+  return elves;
+};
 
-const topThree = elves.toSorted((a, b) => b - a).slice(0, 3);
+const partOne: Solver = (input: string) => {
+  const elves = getElves(input.split('\n'));
 
-const highestCalories = elves.reduce((accum, current) => (current > accum ? current : accum), Number.MIN_SAFE_INTEGER);
+  const highestCalories = elves.reduce(
+    (accum, current) => (current > accum ? current : accum),
+    Number.MIN_SAFE_INTEGER
+  );
 
-console.log({ highestCalories, elves });
+  return { highestCalories };
+};
 
-const topThreeCaloryTotal = topThree.reduce((total, current) => total + current, 0);
+const partTwo: Solver = (input: string) => {
+  const elves = getElves(input.split('\n'));
 
-console.log({ topThree, topThreeCaloryTotal });
+  const topThree = elves.toSorted((a, b) => b - a).slice(0, 3);
+  const topThreeCaloryTotal = topThree.reduce((total, current) => total + current, 0);
+
+  return { topThree, topThreeCaloryTotal };
+};
+
+export { partOne, partTwo };

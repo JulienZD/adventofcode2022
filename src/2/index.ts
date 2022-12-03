@@ -1,4 +1,4 @@
-import { readFile } from '../lib/readFile.ts';
+import { Solver } from '../aoc.d.ts';
 
 const SCORES = {
   WIN: 6,
@@ -79,15 +79,20 @@ const playMatch2 = (p1: P1, p2: P2) => {
   return SCORES[whatToDo] + SCORES[playerTwosPick];
 };
 
-const input = await readFile('./input.txt');
+export const partOne: Solver = (input: string) => {
+  const matches = input
+    .split('\n')
+    .filter((n) => n.length)
+    .map((m) => m.split(' ')) as [P1, P2][];
 
-const matches = input
-  .split('\n')
-  .filter((n) => n.length)
-  .map((m) => m.split(' ')) as [P1, P2][];
+  return matches.reduce((current, [p1, p2]) => current + playMatch1(p1, p2), 0);
+};
 
-const totalScore1 = matches.reduce((current, [p1, p2]) => current + playMatch1(p1, p2), 0);
+export const partTwo: Solver = (input: string) => {
+  const matches = input
+    .split('\n')
+    .filter((n) => n.length)
+    .map((m) => m.split(' ')) as [P1, P2][];
 
-const totalScore2 = matches.reduce((current, [p1, p2]) => current + playMatch2(p1, p2), 0);
-
-console.log({ totalScore1, totalScore2 });
+  return matches.reduce((current, [p1, p2]) => current + playMatch2(p1, p2), 0);
+};

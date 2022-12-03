@@ -1,0 +1,7 @@
+{
+  "author": "Julien Zapata Duque",
+  "tasks": {
+    "start": "deno run --allow-read src/index.ts",
+    "watch": "deno run --watch --allow-read src/index.ts"
+  }
+}
