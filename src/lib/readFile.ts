@@ -3,8 +3,6 @@ export { path };
 
 export const mainModuleDir = path.dirname(path.fromFileUrl(Deno.mainModule));
 
-export const readFile = async (file: string) => {
-  const decoder = new TextDecoder('utf-8');
-
-  return decoder.decode(await Deno.readFile(path.join(mainModuleDir, file)));
+export const readFile = (file: string) => {
+  return Deno.readTextFile(path.join(mainModuleDir, file));
 };
