@@ -16,12 +16,18 @@ const { partOne, partTwo }: { partOne: Solver; partTwo: Solver } = await import(
   path.join(mainModuleDir, solutionDir, 'index.ts')
 );
 
-const runAndBenchmark = async (fn: () => ReturnType<Solver>, solutionNo: number) => {
-  const start = Date.now();
-  const result = await fn();
-  const end = Date.now();
-  console.log(`Solution ${solutionNo}:`, result, `took ${end - start}ms`);
+const benchmark = (fn: () => unknown, solutionNo: number) => {
+  const benchmarksInMs: number[] = [];
+  for (let i = 0; i < 200; i++) {
+    const start = Date.now();
+    fn();
+    const end = Date.now();
+    benchmarksInMs.push(end - start);
+  }
+  const averageTimeMs = benchmarksInMs.reduce((total, current) => total + current, 0) / benchmarksInMs.length;
+
+  console.log(`Solution ${solutionNo}:`, `took an average of ${averageTimeMs}ms`);
 };
 
-await runAndBenchmark(() => partOne(input), 1);
-await runAndBenchmark(() => partTwo(input), 2);
+benchmark(() => partOne(input), 1);
+benchmark(() => partTwo(input), 2);
