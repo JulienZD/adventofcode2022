@@ -21,12 +21,10 @@ const longestString = (...strings: string[]): string => {
   return longest;
 };
 
-const getItemInAllThree = (one: string, two: string, three: string): string => {
-  const sackToCheckWith = longestString(one, two, three);
+const getCommonItem = (...sacks: string[]): string => {
+  const sackToCheckWith = longestString(...sacks);
 
-  const otherSacks = [one, two, three].filter(
-    (sack) => sack !== sackToCheckWith
-  );
+  const otherSacks = sacks.filter((sack) => sack !== sackToCheckWith);
 
   for (let i = 0; i < sackToCheckWith.length; i++) {
     const item = sackToCheckWith[i];
@@ -63,12 +61,12 @@ const totalPriority = rucksacks.reduce((total, sack) => {
   return total + getPriority(itemType);
 }, 0);
 
-const groupedRucksacks = (() => {
+const getGroupedSacks = (groupSize: number): string[][] => {
   const grouped: string[][] = [];
   let currGroup: string[] = [];
 
   for (let i = 0; i < rucksacks.length; i++) {
-    if (i > 0 && i % 3 === 0) {
+    if (i > 0 && i % groupSize === 0) {
       grouped.push(currGroup);
       currGroup = [];
     }
@@ -82,14 +80,10 @@ const groupedRucksacks = (() => {
   }
 
   return grouped;
-})();
+};
 
-console.log(groupedRucksacks);
-
-const totalPriority2 = groupedRucksacks.reduce((total, sacks) => {
-  console.log({ sacks });
-  const itemType = getItemInAllThree(...(sacks as [string, string, string]));
-  console.log(itemType);
+const totalPriority2 = getGroupedSacks(3).reduce((total, sacks) => {
+  const itemType = getCommonItem(...sacks);
   return total + getPriority(itemType);
 }, 0);
 
