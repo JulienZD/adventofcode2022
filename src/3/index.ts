@@ -1,5 +1,6 @@
-const decoder = new TextDecoder('utf-8');
-const input = decoder.decode(await Deno.readFile('./input.txt'));
+import { readFile } from '../lib/readFile.ts';
+
+const input = await readFile('./input.txt');
 
 const rucksacks = input.split('\n');
 
@@ -52,10 +53,7 @@ const getPriority = (letter: string): number => {
 // console.log(getPriority('z'), getPriority('Z'));
 
 const totalPriority = rucksacks.reduce((total, sack) => {
-  const [first, second] = [
-    sack.slice(0, sack.length / 2),
-    sack.slice(sack.length / 2),
-  ];
+  const [first, second] = [sack.slice(0, sack.length / 2), sack.slice(sack.length / 2)];
 
   const itemType = getItemInBoth(first, second);
   return total + getPriority(itemType);

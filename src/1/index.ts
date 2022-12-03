@@ -1,5 +1,6 @@
-const decoder = new TextDecoder('utf-8');
-const input = decoder.decode(await Deno.readFile('./input.txt'));
+import { readFile } from '../lib/readFile.ts';
+
+const input = await readFile('./input.txt');
 
 const elves = [];
 
@@ -21,16 +22,10 @@ for (let i = 0; i < items.length; i++) {
 
 const topThree = elves.toSorted((a, b) => b - a).slice(0, 3);
 
-const highestCalories = elves.reduce(
-  (accum, current) => (current > accum ? current : accum),
-  Number.MIN_SAFE_INTEGER
-);
+const highestCalories = elves.reduce((accum, current) => (current > accum ? current : accum), Number.MIN_SAFE_INTEGER);
 
 console.log({ highestCalories, elves });
 
-const topThreeCaloryTotal = topThree.reduce(
-  (total, current) => total + current,
-  0
-);
+const topThreeCaloryTotal = topThree.reduce((total, current) => total + current, 0);
 
 console.log({ topThree, topThreeCaloryTotal });

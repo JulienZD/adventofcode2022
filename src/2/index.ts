@@ -1,3 +1,5 @@
+import { readFile } from '../lib/readFile.ts';
+
 const SCORES = {
   WIN: 6,
   DRAW: 3,
@@ -77,8 +79,7 @@ const playMatch2 = (p1: P1, p2: P2) => {
   return SCORES[whatToDo] + SCORES[playerTwosPick];
 };
 
-const decoder = new TextDecoder('utf-8');
-const input = decoder.decode(await Deno.readFile('./input.txt'));
+const input = await readFile('./input.txt');
 
 const matches = input
   .split('\n')
