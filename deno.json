@@ -2,6 +2,7 @@
   "author": "Julien Zapata Duque",
   "tasks": {
     "start": "deno run --allow-read src/index.ts",
-    "watch": "deno run --watch --allow-read src/index.ts"
+    "watch": "deno run --watch --allow-read src/index.ts",
+    "generate": "deno run --allow-write --allow-read --allow-env --allow-net src/scripts/generate.ts \"$INIT_CWD\""
   }
 }
