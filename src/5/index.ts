@@ -1,10 +1,9 @@
 import type { Solver } from '../aoc.d.ts';
 
-const moveCrate = (from: string[], to: string[]) => {
-  const crate = from.shift();
-  if (crate) {
-    to.unshift(crate);
-  }
+const moveCrates = (amount: number, from: string[], to: string[]) => {
+  const crates = from.splice(0, amount);
+
+  to.unshift(...crates);
 };
 
 const moveCratesByInstructions = (
@@ -17,7 +16,7 @@ const moveCratesByInstructions = (
       ?.map(Number) as [number, number, number];
 
     for (let i = amountToMove - 1; i >= 0; i--) {
-      moveCrate(stacks[fromStack - 1], stacks[toStack - 1]);
+      moveCrates(1, stacks[fromStack - 1], stacks[toStack - 1]);
     }
   });
 
@@ -28,12 +27,6 @@ export const partOne: Solver = (input: string) => {
   const { crateConfiguration, instructions } = readInput(input);
 
   return moveCratesByInstructions(crateConfiguration, instructions);
-};
-
-const moveCrates = (amount: number, from: string[], to: string[]) => {
-  const crates = from.splice(0, amount);
-
-  to.unshift(...crates);
 };
 
 const moveCratesByInstructions2 = (
