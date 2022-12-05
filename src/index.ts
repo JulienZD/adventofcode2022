@@ -15,9 +15,7 @@ const shouldRedactOutput = Deno.args.includes('--redact');
 
 const solutionDir = `./${day}`;
 
-const input = await readFile(
-  path.join(solutionDir, useExample ? 'example.txt' : 'input.txt')
-);
+const input = await readFile(path.join(solutionDir, useExample ? 'example.txt' : 'input.txt'));
 
 const { partOne, partTwo }: { partOne: Solver; partTwo: Solver } = await import(
   path.join(mainModuleDir, solutionDir, 'index.ts')

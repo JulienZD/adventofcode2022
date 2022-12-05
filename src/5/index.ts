@@ -6,14 +6,9 @@ const moveCrates = (amount: number, from: string[], to: string[]) => {
   to.unshift(...crates);
 };
 
-const moveCratesByInstructions = (
-  stacks: string[][],
-  instructions: string[]
-) => {
+const moveCratesByInstructions = (stacks: string[][], instructions: string[]) => {
   instructions.forEach((instruction) => {
-    const [amountToMove, fromStack, toStack] = instruction
-      .match(/\d+/g)
-      ?.map(Number) as [number, number, number];
+    const [amountToMove, fromStack, toStack] = instruction.match(/\d+/g)?.map(Number) as [number, number, number];
 
     for (let i = amountToMove - 1; i >= 0; i--) {
       moveCrates(1, stacks[fromStack - 1], stacks[toStack - 1]);
@@ -29,14 +24,9 @@ export const partOne: Solver = (input: string) => {
   return moveCratesByInstructions(crateConfiguration, instructions);
 };
 
-const moveCratesByInstructions2 = (
-  stacks: string[][],
-  instructions: string[]
-) => {
+const moveCratesByInstructions2 = (stacks: string[][], instructions: string[]) => {
   instructions.forEach((instruction) => {
-    const [amountToMove, fromStack, toStack] = instruction
-      .match(/\d+/g)
-      ?.map(Number) as [number, number, number];
+    const [amountToMove, fromStack, toStack] = instruction.match(/\d+/g)?.map(Number) as [number, number, number];
 
     moveCrates(amountToMove, stacks[fromStack - 1], stacks[toStack - 1]);
   });
@@ -51,17 +41,11 @@ export const partTwo: Solver = (input: string) => {
 };
 
 function readInput(input: string) {
-  const [rawCrateConfiguration, instructions] = input
-    .split('\n\n')
-    .map((s) => s.split('\n'));
+  const [rawCrateConfiguration, instructions] = input.split('\n\n').map((s) => s.split('\n'));
 
-  const stackCount = Number(
-    rawCrateConfiguration.at(-1)!.replaceAll(' ', '').at(-1)
-  );
+  const stackCount = Number(rawCrateConfiguration.at(-1)!.replaceAll(' ', '').at(-1));
 
-  const stacks = new Array(stackCount)
-    .fill(undefined)
-    .map(() => [] as string[]);
+  const stacks = new Array(stackCount).fill(undefined).map(() => [] as string[]);
 
   const lastIndex = rawCrateConfiguration.length - 1;
 
