@@ -10,9 +10,14 @@ if (day < 1 || day > 25) {
 
 const iterations = Number(Deno.args[1]) || 200;
 
+const useExample = Deno.args.includes('--example');
+const shouldRedactOutput = Deno.args.includes('--redact');
+
 const solutionDir = `./${day}`;
 
-const input = await readFile(path.join(solutionDir, 'input.txt'));
+const input = await readFile(
+  path.join(solutionDir, useExample ? 'example.txt' : 'input.txt')
+);
 
 const { partOne, partTwo }: { partOne: Solver; partTwo: Solver } = await import(
   path.join(mainModuleDir, solutionDir, 'index.ts')
@@ -29,7 +34,10 @@ const benchmark = (fn: () => unknown, solutionNo: number) => {
   }
   const averageTimeMs = benchmarksInMs.reduce((total, current) => total + current, 0) / benchmarksInMs.length;
 
-  console.log(`Solution ${solutionNo}: ${result}`, `took an average of ${averageTimeMs}ms (${iterations} iterations)`);
+  console.log(
+    `Solution ${solutionNo}: ${shouldRedactOutput ? '<REDACTED>' : result}`,
+    `took an average of ${averageTimeMs}ms (${iterations} iterations)`
+  );
 };
 
 benchmark(() => partOne(input), 1);
