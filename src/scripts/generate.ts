@@ -64,6 +64,6 @@ if (response.status !== 200) {
 
 const input = await response.text();
 
-await Deno.writeTextFile(path.join(dayDirectory, 'input.txt'), input.trim());
+await Deno.writeTextFile(path.join(dayDirectory, 'input.txt'), input.trimEnd());
 
 console.log('Wrote input to', path.join(dayDirectory, 'input.txt'));
