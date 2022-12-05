@@ -30,8 +30,31 @@ export const partOne: Solver = (input: string) => {
   return moveCratesByInstructions(crateConfiguration, instructions);
 };
 
+const moveCrates = (amount: number, from: string[], to: string[]) => {
+  const crates = from.splice(0, amount);
+
+  to.unshift(...crates);
+};
+
+const moveCratesByInstructions2 = (
+  stacks: string[][],
+  instructions: string[]
+) => {
+  instructions.forEach((instruction) => {
+    const [amountToMove, fromStack, toStack] = instruction
+      .match(/\d+/g)
+      ?.map(Number) as [number, number, number];
+
+    moveCrates(amountToMove, stacks[fromStack - 1], stacks[toStack - 1]);
+  });
+
+  return stacks.map((stack) => stack[0]).join('');
+};
+
 export const partTwo: Solver = (input: string) => {
-  return null;
+  const { crateConfiguration, instructions } = readInput(input);
+
+  return moveCratesByInstructions2(crateConfiguration, instructions);
 };
 
 function readInput(input: string) {
