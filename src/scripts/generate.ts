@@ -1,5 +1,6 @@
-import { path } from '../lib/readFile.ts';
 import { config } from 'https://deno.land/std@0.167.0/dotenv/mod.ts';
+import { parseHtml } from '../lib/parseHtml.ts';
+import { path } from '../lib/readFile.ts';
 
 const template = `
 import type { Solver } from '../aoc.d.ts';
@@ -11,7 +12,7 @@ export const partOne: Solver = (input: string) => {
 export const partTwo: Solver = (input: string) => {
   return null;
 };
-`;
+`.trimStart();
 
 const [workingDirectory, dayString] = Deno.args;
 const day = Number(dayString);
@@ -49,21 +50,38 @@ if (!email || !repoUrl) {
   console.log('No email or repository set, these are required when making requests. Skipping input download');
   Deno.exit(0);
 }
+const urlForDay = `https://adventofcode.com/2022/day/${day}`;
+const requestHeaders = {
+  'User-Agent': `${repoUrl} by ${email}`, // Required as of 2022 https://reddit.com/r/adventofcode/z9dhtd
+  cookie: `session=${sessionToken}`,
+};
 
-const response = await fetch(`https://adventofcode.com/2022/day/${day}/input`, {
-  headers: {
-    'User-Agent': `${repoUrl} by ${email}`, // Required as of 2022 https://reddit.com/r/adventofcode/z9dhtd
-    cookie: `session=${sessionToken}`,
-  },
+const inputResponse = await fetch(`${urlForDay}/input`, {
+  headers: requestHeaders,
 });
 
-if (response.status !== 200) {
-  console.log('Failed to download input', response.status, response.statusText);
+if (inputResponse.status !== 200) {
+  console.log('Failed to download input', inputResponse.status, inputResponse.statusText);
   Deno.exit(0);
 }
 
-const input = await response.text();
+const input = await inputResponse.text();
 
-await Deno.writeTextFile(path.join(dayDirectory, 'input.txt'), input.trimEnd());
+const writeToFile = async (file: string, content: string) => {
+  await Deno.writeTextFile(file, content.trimEnd());
 
-console.log('Wrote input to', path.join(dayDirectory, 'input.txt'));
+  console.log('Wrote content to', file);
+};
+
+await writeToFile(path.join(dayDirectory, 'input.txt'), input);
+
+const pageContent = await fetch(urlForDay, {
+  headers: requestHeaders,
+}).then((r) => r.text());
+
+const parsedPage = parseHtml(pageContent);
+
+// The example input is contained in the first <code> element on the page
+const [exampleElement] = parsedPage?.querySelectorAll('code') ?? [];
+
+await writeToFile(path.join(dayDirectory, 'example.txt'), exampleElement.textContent);
