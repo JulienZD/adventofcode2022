@@ -15,5 +15,15 @@ export const partOne: Solver = (input: string) => {
 };
 
 export const partTwo: Solver = (input: string) => {
-  return null;
+  let position = 0;
+  for (let i = 0; i < input.length; i++) {
+    const section = new Set(input.slice(i, i + 14));
+
+    if (section.size === 14) {
+      position = i + 14;
+      break;
+    }
+  }
+
+  return position;
 };
