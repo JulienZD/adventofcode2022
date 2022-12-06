@@ -1,29 +1,21 @@
 import type { Solver } from '../aoc.d.ts';
 
 export const partOne: Solver = (input: string) => {
-  let position = 0;
-  for (let i = 0; i < input.length; i++) {
-    const section = new Set(input.slice(i, i + 4));
-
-    if (section.size === 4) {
-      position = i + 4;
-      break;
-    }
-  }
-
-  return position;
+  return findMarker(input, 4);
 };
 
 export const partTwo: Solver = (input: string) => {
-  let position = 0;
-  for (let i = 0; i < input.length; i++) {
-    const section = new Set(input.slice(i, i + 14));
+  return findMarker(input, 14);
+};
 
-    if (section.size === 14) {
-      position = i + 14;
-      break;
+const findMarker = (data: string, markerLength: number) => {
+  for (let i = 0; i < data.length; i++) {
+    const section = new Set(data.slice(i, i + markerLength));
+
+    if (section.size === markerLength) {
+      return i + markerLength;
     }
   }
 
-  return position;
+  return -1;
 };
