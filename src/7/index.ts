@@ -1,8 +1,5 @@
 import type { Solver } from '../aoc.d.ts';
 
-const MIN_AVAILABLE_SPACE = 30_000_000;
-const MAX_AVAILABLE_SPACE = 70_000_000;
-
 interface Directory {
   name: string;
   files: number[];
@@ -10,9 +7,7 @@ interface Directory {
   parent?: Directory;
 }
 
-type DirectoryWithSize = Directory & { size: number; directories: DirectoryWithSize[] };
-
-const determineLargestSizes = (terminalOutput: string[]) => {
+const buildFileTreeFromTerminalOutput = (terminalOutput: string[]) => {
   const root: Directory = {
     name: '/',
     files: [],
@@ -56,49 +51,24 @@ const determineLargestSizes = (terminalOutput: string[]) => {
     currentDirectory.files.push(+size);
   }
 
+  return root;
+};
+
+const calculateTotalSizeUnderLimit = (root: Directory, maxDirectorySize: number) => {
   let totalSize = 0;
 
-  const calculateDirectorySize = (directory: Directory): DirectoryWithSize => {
+  const calculateDirectorySize = (directory: Directory): void => {
     const dirSize = determineDirSize(directory);
-    if (dirSize < 100_000) {
+    if (dirSize < maxDirectorySize) {
       totalSize += dirSize;
     }
 
-    return {
-      ...directory,
-      size: dirSize,
-      directories: directory.directories.map(calculateDirectorySize),
-    };
+    directory.directories.forEach(calculateDirectorySize);
   };
 
-  const withSizes = calculateDirectorySize(root);
+  calculateDirectorySize(root);
 
-  const availableSpace = MAX_AVAILABLE_SPACE - withSizes.size;
-  const spaceToDelete = MIN_AVAILABLE_SPACE - availableSpace;
-
-  const result = findSmallestDirectory(withSizes, spaceToDelete);
-
-  return result.size;
-};
-
-const findSmallestDirectory = (directory: DirectoryWithSize, minSize: number): DirectoryWithSize => {
-  const isElegible = directory.size >= minSize;
-
-  if (!isElegible) {
-    return directory;
-  }
-
-  const eligibleSubdirectories: DirectoryWithSize[] = [];
-  for (const subDir of directory.directories) {
-    const smallestEligible = findSmallestDirectory(subDir, minSize);
-    eligibleSubdirectories.push(smallestEligible);
-  }
-
-  const sortedDirectories = [directory, ...eligibleSubdirectories]
-    .toSorted((a, b) => a.size - b.size)
-    .filter(({ size }) => size >= minSize);
-
-  return sortedDirectories[0];
+  return totalSize;
 };
 
 const determineDirSize = (directory: Directory, total = 0): number => {
@@ -112,10 +82,54 @@ const determineDirSize = (directory: Directory, total = 0): number => {
 };
 
 export const partOne: Solver = (input: string) => {
-  const terminalOutput = input.split('\n');
-  return determineLargestSizes(terminalOutput);
+  const fileTree = buildFileTreeFromTerminalOutput(input.split('\n'));
+
+  return calculateTotalSizeUnderLimit(fileTree, 100_000);
 };
 
 export const partTwo: Solver = (input: string) => {
-  return null;
+  const fileTree = buildFileTreeFromTerminalOutput(input.split('\n'));
+  const MIN_AVAILABLE_SPACE = 30_000_000;
+  const MAX_AVAILABLE_SPACE = 70_000_000;
+
+  const treeWithSizes = calculateDirectorySize(fileTree);
+
+  const spaceToDelete = MIN_AVAILABLE_SPACE - (MAX_AVAILABLE_SPACE - treeWithSizes.size);
+
+  const largestDeletableDirectory = findLargestDeletableDirectory(treeWithSizes, spaceToDelete);
+
+  return largestDeletableDirectory.size;
+};
+
+const calculateDirectorySize = (directory: Directory): DirectoryWithSize => {
+  const dirSize = determineDirSize(directory);
+
+  return {
+    ...directory,
+    size: dirSize,
+    directories: directory.directories.map(calculateDirectorySize),
+  };
+};
+
+type DirectoryWithSize = Directory & { size: number; directories: DirectoryWithSize[] };
+
+const findLargestDeletableDirectory = (directory: DirectoryWithSize, minSize: number): DirectoryWithSize => {
+  const isLargeEnough = directory.size >= minSize;
+
+  if (!isLargeEnough) {
+    return directory;
+  }
+
+  const eligibleSubdirectories: DirectoryWithSize[] = [];
+
+  for (const subDir of directory.directories) {
+    const largestEligibleDir = findLargestDeletableDirectory(subDir, minSize);
+    eligibleSubdirectories.push(largestEligibleDir);
+  }
+
+  const sortedDirectories = [directory, ...eligibleSubdirectories]
+    .toSorted((a, b) => a.size - b.size)
+    .filter(({ size }) => size >= minSize);
+
+  return sortedDirectories[0];
 };
