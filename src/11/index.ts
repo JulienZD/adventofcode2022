@@ -2,36 +2,16 @@ import type { Solver } from '../aoc.d.ts';
 
 export const partOne: Solver = (input: string) => {
   const monkeys = parseMonkeys(input);
-
-  for (let round = 0; round < 20; round++) {
-    for (const monkey of monkeys) {
-      // worryLevel is used in the eval
-      // deno-lint-ignore no-unused-vars prefer-const
-      for (let worryLevel of monkey.items) {
-        monkey.inspections++;
-
-        let newWorryLevel = eval(monkey.operation);
-        newWorryLevel = Math.floor(newWorryLevel / 3);
-
-        const { conditionDivisibleBy, throwToMonkeyIfFalse, throwToMonkeyIfTrue } = monkey.test;
-        const monkeyToThrowTo = newWorryLevel % conditionDivisibleBy === 0 ? throwToMonkeyIfTrue : throwToMonkeyIfFalse;
-
-        monkeys[monkeyToThrowTo].items.push(newWorryLevel);
-      }
-
-      monkey.items = [];
-    }
-  }
-
-  return monkeys
-    .map((m) => m.inspections)
-    .toSorted((a, b) => b - a)
-    .slice(0, 2)
-    .reduce((acc, inspections) => acc * inspections, 1);
+  return performInspections(monkeys, { inspections: 20, usesLargeNumbers: false });
 };
 
 export const partTwo: Solver = (input: string) => {
-  return null;
+  const monkeys = parseMonkeys(input);
+  const divisibleByXProduct = monkeys
+    .map((monkey) => monkey.test.conditionDivisibleBy)
+    .reduce((acc, num) => acc * num, 1);
+
+  return performInspections(monkeys, { inspections: 10000, usesLargeNumbers: true, divisibleByXProduct });
 };
 
 interface MonkeyInstruction {
@@ -65,4 +45,39 @@ const parseMonkeys = (input: string): MonkeyInstruction[] => {
       },
     };
   });
+};
+
+const performInspections = (
+  monkeys: MonkeyInstruction[],
+  {
+    inspections,
+    usesLargeNumbers,
+    divisibleByXProduct,
+  }: { inspections: number; usesLargeNumbers: boolean; divisibleByXProduct?: number }
+) => {
+  for (let round = 0; round < inspections; round++) {
+    for (const monkey of monkeys) {
+      // worryLevel is used in the eval
+      // deno-lint-ignore no-unused-vars
+      for (const worryLevel of monkey.items) {
+        monkey.inspections++;
+
+        let newWorryLevel = eval(monkey.operation);
+        newWorryLevel = usesLargeNumbers ? newWorryLevel % divisibleByXProduct! : Math.floor(newWorryLevel / 3);
+
+        const { conditionDivisibleBy, throwToMonkeyIfFalse, throwToMonkeyIfTrue } = monkey.test;
+
+        const monkeyToThrowTo = newWorryLevel % conditionDivisibleBy === 0 ? throwToMonkeyIfTrue : throwToMonkeyIfFalse;
+        monkeys[monkeyToThrowTo].items.push(newWorryLevel);
+      }
+
+      monkey.items = [];
+    }
+  }
+
+  return monkeys
+    .map((m) => m.inspections)
+    .toSorted((a, b) => b - a)
+    .slice(0, 2)
+    .reduce((acc, inspections) => acc * inspections, 1);
 };
